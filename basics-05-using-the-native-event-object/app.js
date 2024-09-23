@@ -16,6 +16,13 @@ const app = Vue.createApp({
       }
     }
   },
+  watch: {
+    counter(value){
+      if(value>50){
+        this.counter = 0;
+      }
+    }
+  },
   methods: {
     setName(event) {
       this.name = event.target.value ;
