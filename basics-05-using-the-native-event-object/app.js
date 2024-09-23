@@ -5,6 +5,17 @@ const app = Vue.createApp({
       name: ''
     };
   },
+  computed: {
+    fullName(){
+      console.log('Running again...');
+      if(this.name === ''){
+        return '';
+      }
+      else{
+        return this.name + ' ' + "Upadhyaya"
+      }
+    }
+  },
   methods: {
     setName(event) {
       this.name = event.target.value ;
@@ -18,7 +29,8 @@ const app = Vue.createApp({
     },
     resetInput(){
       this.name='';
-    }
+    },
+    
   }
 });
 
