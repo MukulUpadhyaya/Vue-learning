@@ -1,37 +1,69 @@
 <template>
-    <section>
-      <ul>
-        <li>
-          <h2>{{friend.name}}</h2>
-          <button @click="toggleDetails">{{isDetailsVisible ? 'Hide' : 'Show' }} Details </button>
-          <ul v-if="isDetailsVisible">
-            <li><strong>Phone:</strong> {{friend.phone}}</li>
-            <li><strong>Email:</strong> {{friend.email}}</li>
-          </ul>
-    </li>
-      </ul>
-    </section>
+  <section>
+    <ul>
+      <li>
+        <h2>{{ name }}{{ isFavorite ? "(Favorite)" : "" }}</h2>
+        <button @click="toggleFavorite">Toggle Favorite</button>
+        <button @click="toggleDetails">
+          {{ isDetailsVisible ? "Hide" : "Show" }} Details
+        </button>
+        <ul v-if="isDetailsVisible">
+          <li><strong>Phone:</strong> {{ phoneNumber }}</li>
+          <li><strong>Email:</strong> {{ emailAddress }}</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
 </template>
 
 <script>
 export default {
-    data() {
-        return {
-            isDetailsVisible: false,
-            friend: {
-                id: 'Mukul',
-                name: 'Mukul Upadhyaya',
-                phone: '09639136578',
-                email: 'mukulfb49@gmail.com',
-            },
-        }
+  // props:[
+  //   'name',
+  //   'phoneNumber',
+  //   'emailAddress',
+  //   'isFavorite',
+  // ],
+  props: {
+    id: {
+      type: String,
+      required: true,
     },
-    methods: {
-        toggleDetails() {
-            this.isDetailsVisible = !this.isDetailsVisible;
-        }
+    name: {
+      type: String,
+      required: true,
     },
-}
+    phoneNumber: {
+      type: String,
+      required: true,
+    },
+    emailAddress: {
+      type: String,
+      required: true,
+    },
+    isFavorite: {
+      required: false,
+      default: false,
+      validator: function (value) {
+        return value === true || value === false;
+      },
+    },
+  },
+  emits: ["toggle-favorite"],
+  data() {
+    return {
+      isDetailsVisible: false,
+    };
+  },
+  methods: {
+    toggleDetails() {
+      this.isDetailsVisible = !this.isDetailsVisible;
+    },
+    toggleFavorite() {
+      this.$emit("toggle-favorite", this.id);
+    },
+  },
+};
 </script>
 
 <style>
@@ -40,7 +72,7 @@ export default {
 }
 
 html {
-  font-family: 'Jost', sans-serif;
+  font-family: "Jost", sans-serif;
 }
 
 body {
@@ -98,6 +130,5 @@ header {
   border-color: #ec3169;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.26);
 }
-
 </style>
 
