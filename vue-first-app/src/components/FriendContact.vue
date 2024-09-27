@@ -11,6 +11,7 @@
           <li><strong>Phone:</strong> {{ phoneNumber }}</li>
           <li><strong>Email:</strong> {{ emailAddress }}</li>
         </ul>
+        <button @click="$emit('delete',this.id)">Delete</button>
       </li>
     </ul>
   </section>
