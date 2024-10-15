@@ -21,27 +21,32 @@ export default {
             id: userId
         });
     },
-    async loadCoaches(context){
+    async loadCoaches(context, payload) {
+        if (!payload.forceRefresh && !context.getters.shouldUpdate) {
+            return;
+        }
         const response = await fetch(`https://vue-http-demo-50f89-default-rtdb.firebaseio.com/coaches.json`);
         const coachesData = await response.json();
-        
-        if(!response.ok){
-            //error
+
+        if (!response.ok) {
+            const error = new error(response.message || 'Failed to fetch');
+            throw error;
         }
 
         const coaches = [];
-			for (const key in coachesData) {
-				const coach = {
-					id: key,
-					firstName: coachesData[key].firstName,
-					lastName: coachesData[key].lastName,
-					description: coachesData[key].description,
-					hourlyRate: coachesData[key].hourlyRate,
-					areas: coachesData[key].areas
-				};
-				coaches.push(coach);
+        for (const key in coachesData) {
+            const coach = {
+                id: key,
+                firstName: coachesData[key].firstName,
+                lastName: coachesData[key].lastName,
+                description: coachesData[key].description,
+                hourlyRate: coachesData[key].hourlyRate,
+                areas: coachesData[key].areas
+            };
+            coaches.push(coach);
 
-				context.commit('setCoaches', coaches);
-			}
+            context.commit('setCoaches', coaches);
+            context.commit('setFetchTimeStamp');
+        }
     }
 }
