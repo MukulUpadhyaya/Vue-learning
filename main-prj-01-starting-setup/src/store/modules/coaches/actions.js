@@ -9,7 +9,9 @@ export default {
             hourlyRate: data.rate,
             areas: data.areas
         };
-        const response = await fetch(`https://vue-http-demo-50f89-default-rtdb.firebaseio.com/coaches/${userId}.json`, {
+        const token = context.rootGetters.token;
+
+        const response = await fetch(`https://vue-http-demo-50f89-default-rtdb.firebaseio.com/coaches/${userId}.json?auth=` + token, {
             method: 'PUT',
             body: JSON.stringify(coachData)
         })
@@ -29,7 +31,7 @@ export default {
         const coachesData = await response.json();
 
         if (!response.ok) {
-            const error = new error(response.message || 'Failed to fetch');
+            const error = new Error(response.message || 'Failed to fetch');
             throw error;
         }
 
