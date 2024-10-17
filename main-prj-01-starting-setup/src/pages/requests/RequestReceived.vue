@@ -1,105 +1,133 @@
 <template>
-    <div>
-    <base-dialog :show="!!error" title="An error occurred!" @close="handleError">
-        <p>
-            {{ error }}
-        </p>
-    </base-dialog>
-    <section>
-        <base-card>
-            <header>
-                <h2>Request received</h2>
-            </header>
-            <div v-if="isLoading">
-                <base-spinner></base-spinner>
-            </div>
-            <ul v-else-if="hasRequests && !isLoading">
-                <requests-item v-for="req in receivedRequests" :key=req.id :email="req.userEmail"
-                    :message="req.message"></requests-item>
-            </ul>
-            <h3 v-else>You haven't received any requests yet!</h3>
-        </base-card>
-    </section>
-    </div>
+	<div>
+		<base-dialog
+			:show= true
+			title="An error occured"
+			@close="handleError"
+		>
+			<p>{{ error }}</p>
+		</base-dialog>
+		<section class="row">
+			<div class="controls">
+				<base-button mode="flat" @click="loadRequests"
+					>Refresh</base-button
+				>
+			</div>
+			<base-card color="color">
+				<header>
+					<h2>Requests Received</h2>
+					<!-- I added this so who knows -->
+					<h3 v-if="currentCoach" class="current">
+						Logged in as {{ currentCoach }}
+					</h3>
+				</header>
+				<base-spinner v-if="isLoading"></base-spinner>
+				<ul v-else-if="hasRequests && !isLoading">
+					<RequestsItem
+						v-for="req in receivedRequests"
+						:key="req.id"
+						:email="req.userEmail"
+						:message="req.message"
+						:timestamp="req.timestamp"
+					/>
+				</ul>
+				<h3 v-else>You haven't receieved any requests yet.</h3>
+			</base-card>
+		</section>
+	</div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import RequestsItem from '../../components/requests/requestsItem.vue';
+
 export default {
-    components: {
-        RequestsItem
-    },
-    data() {
-        return { isLoading: false }
-    },
-    created(){
-        this.loadRequests();
-    },
-    computed: {
-        receivedRequests() {
-            return this.$store.getters['requests/requests'];
-        },
-        hasRequests() {
-            return this.$store.getters['requests/hasRequests'];
-        }
-    },
-    methods: {
-        async loadRequests() {
-            this.isLoading = true;
-            try {
-                await this.$store.dispatch('requests/fetchRequests');
-            }
-            catch (error) {
-                this.error = error.message || 'Something went wrong!';
-            }
-            this.isLoading = false;
-        },
-        handleError() {
-            this.error = null;
-        }
-    }
-}
+	components: {
+		RequestsItem,
+	},
+	data() {
+		return {
+			isLoading: false,
+			error: null,
+			currentCoach: null,
+		};
+	},
+	computed: {
+		...mapGetters('requests', {
+			receivedRequests: 'requests',
+			hasRequests: 'hasRequests',
+		}),
+	},
+	methods: {
+		async loadRequests() {
+			this.isLoading = true;
+			try {
+				await this.$store.dispatch('requests/fetchRequests');
+			} catch (err) {
+				this.error = err.message || 'Something went wrong';
+			}
+			this.isLoading = false;
+		},
+		handleError() {
+			this.error = null;
+		},
+		async getCurrentCoach() {
+			const userId = this.$store.getters.userId;
+			await this.$store.dispatch('coaches/loadCoaches', {
+				forceRefresh: false,
+			});
+			const coaches = this.$store.getters['coaches/coaches'];
+
+			const coach = coaches.find((coach) => coach.id === userId);
+			this.currentCoach = coach.firstName;
+		},
+	},
+	created() {
+		this.loadRequests();
+		this.getCurrentCoach();
+	},
+};
 </script>
 
 <style scoped>
 section:first-of-type {
-    margin-top: 3.2rem;
+	margin-top: 3.2rem;
 }
 
 header {
-    text-align: center;
+	text-align: center;
 }
 
 ul {
-    list-style: none;
-    max-width: 40rem;
-    margin: 0 auto;
+	list-style: none;
+	max-width: 40rem;
+	margin: 0 auto;
 
-    display: flex;
-    flex-direction: column;
-    gap: 1.6rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.6rem;
 }
 
 h2 {
-    font-size: 2.4rem;
-    font-family: var(--font-display);
-    font-weight: normal;
-    margin-bottom: 1em;
+	font-size: 2.4rem;
+	font-family: var(--font-display);
+	font-weight: normal;
+	margin-bottom: 1em;
 }
 
 h3 {
-    text-align: center;
-    font-size: 1.8rem;
-    margin-bottom: 0.8rem;
+	text-align: center;
+	font-size: 1.8rem;
+	margin-bottom: 0.8rem;
 }
 
 .current {
-    color: var(--purple-2);
-    margin-bottom: 2.4rem;
+	color: var(--purple-2);
+	margin-bottom: 2.4rem;
 }
 
 .controls {
-    display: flex;
-    justify-content: center;
+	display: flex;
+	justify-content: center;
 }
 </style>

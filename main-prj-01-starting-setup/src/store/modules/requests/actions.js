@@ -1,10 +1,11 @@
 export default {
     async contactCoach(context, payload) {
         const newRequest = {
-            id: new Date().toISOString(),
             userEmail: payload.email,
-            message: payload.message,
-        };
+			message: payload.message,
+			timestamp: payload.timestamp
+        };        
+        //const token = context.rootGetters.token;
         const response = await fetch(`https://vue-http-demo-50f89-default-rtdb.firebaseio.com/requests/${payload.coachId}.json`, {
             method: 'POST',
             body: JSON.stringify(newRequest)
@@ -14,20 +15,23 @@ export default {
         const responseData = await response.json();
 
         if (!response.ok) {
-            const error = new error(responseData.message || 'Failed to send request');
+            const error = new Error(responseData.message || 'Failed to send request');
             throw error;
         }
         context.commit('addRequest', newRequest);
     },
     async fetchRequests(context){
         const coachId = context.rootGetters.userId;
-        const response = await fetch(`https://vue-http-demo-50f89-default-rtdb.firebaseio.com/requests/${coachId}.json`);
+        const token = context.rootGetters.token;
+        const response = await fetch(`https://vue-http-demo-50f89-default-rtdb.firebaseio.com/requests/${coachId}.json?auth=` + token);
         const responseData = await response.json();
         
         if(!response.ok){
-            const error=new error(response.message || 'Failed to fetch');
+            const error=new Error(response.message || 'Failed to fetch');
+            console.log(error);
             throw error;
         }
+        
 
         const requests = [];
 			for (const key in responseData) {
