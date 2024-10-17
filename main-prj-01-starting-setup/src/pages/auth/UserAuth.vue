@@ -11,22 +11,57 @@
 			<base-spinner></base-spinner>
 		</base-dialog>
         <base-card>
-            <form @submit.prevent="submitForm">
-                <div class="form-control">
-                    <label for="email">E-mail</label>
-                    <input type="email" name="email" id="email" placeholder="Email" v-model.trim="email" />
-                </div>
-                <div class="form-control">
-                    <label for="password">Password</label>
-                    <input type="password" name="password" id="password" placeholder="password"
-                        v-model.trim="password" />
-                </div>
-                <p class="errors" v-if="!formIsValid">
-                    Please enter a valid email and non-empty message.
-                </p>
-                <base-button>{{ submitButtonCaption }}</base-button>
-                <base-button @click="switchAuthMode">{{ switchModeButtonCaption }}</base-button>
-            </form>
+        <form @submit.prevent="submitForm">
+					<div class="form-control">
+						<transition name="title-fade" mode="out-in">
+							<h2 v-if="mode === 'login'">Login</h2>
+							<h2 v-else>Signup</h2>
+						</transition>
+					</div>
+					<div class="form-control">
+						<label for="email">Email</label>
+						<input type="email" id="email" v-model.trim="email" />
+					</div>
+					<div class="form-control">
+						<label for="password">Password</label>
+						<input
+							type="password"
+							id="password"
+							v-model.trim="password"
+						/>
+					</div>
+					<p v-if="!formIsValid">
+						Please enter a valid email and password (must be at
+						least 6 characters long
+					</p>
+					<div class="actions">
+                        <transition name="btn-fade" mode="out-in">
+							<base-button v-if="mode === 'signup'"
+								>Signup</base-button
+							>
+							<base-button
+								type="button"
+								mode="flat"
+								@click="switchAuthMode"
+								v-else
+								>Signup instead</base-button
+							>
+						</transition>
+						<transition name="btn-fade" mode="out-in">
+							<base-button v-if="mode === 'login'"
+								>Login</base-button
+							>
+							<base-button
+								type="button"
+								mode="flat"
+								@click="switchAuthMode"
+								v-else
+								>Login instead</base-button
+							>
+						</transition>
+						
+					</div>
+				</form>
         </base-card>
     </div>
 </template>
@@ -71,6 +106,8 @@ export default {
                 else {
                     await this.$store.dispatch('signup', actionPayload);
                 }
+                const redirectUrl = '/' + (this.$route.query.redirect || 'coaches');
+                this.$router.replace(redirectUrl);
             } catch (error) {
                 this.error = error.message || 'Failed to authenticate, try later.';
                 this.isLoading = false;
@@ -78,7 +115,7 @@ export default {
             }
 
             this.isLoading = false;
-            //this.$router.replace('/coaches');
+           
         },
         validateEmail(email) {
             const regex = /^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;

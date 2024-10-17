@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<base-dialog
-			:show="!!error"
+			:show= true
 			title="An error occured"
 			@close="handleError"
 		>
