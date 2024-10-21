@@ -47,9 +47,10 @@ export default {
     },
     async auth(context, payload) {
         const mode = payload.mode;
-        let url = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyACUNewagg_EMEoj-q0yysuWFZV9cMZOQE';
+        console.log(process.env);
+        let url = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+process.env.VUE_APP_API_KEY;
         if (mode === 'signup') {
-            url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyACUNewagg_EMEoj-q0yysuWFZV9cMZOQE'
+            url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+process.env.VUE_APP_API_KEY;
         }
         const response = await fetch(url, {
             method: 'POST',
